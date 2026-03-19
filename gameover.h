@@ -3,6 +3,6 @@
 #include "pieza.h"
 #include "tetris.h"
 
-bool gameOver(TETRIS &t, PIEZA &p); 
+bool GameOver(TETRIS &t, PIEZA &p);
 
 #endif
