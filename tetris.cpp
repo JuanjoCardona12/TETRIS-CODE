@@ -36,36 +36,28 @@ void inicializarTetris(TETRIS &t) {
     for (int i = 0; i < t.alto; i++)
         for (int j = 0; j < t.bytesPorFila; j++)
             t.pantalla[i][j] = 0; // Limpieza inicial de bits
-    
-    void crearBordes(TETRIS &t) {
-    for (int i = 0; i < t.alto; i++) {
-        encenderBit(t, i, 0);            // Borde izquierdo
-        encenderBit(t, i, t.ancho - 1);  // Borde derecho
-    }
-    for (int j = 0; j < t.ancho; j++) {
-        encenderBit(t, t.alto - 1, j);   // Suelo del tablero
-    }
 }
 
-void liberarTetris(TETRIS &t) {
-    for (int i = 0; i < t.alto; i++)
-        delete[] t.pantalla[i];
-    delete[] t.pantalla; // Evita fugas de memoria
-}
+void crearBordes(TETRIS &t) {
+    for (int i = 0; i < t.alto; i++) {
+        encenderBit(t, i, 0);            // Límite izquierdo
+        encenderBit(t, i, t.ancho - 1);  // Límite derecho
+    }
+    for (int j = 0; j < t.ancho; j++) {
+        encenderBit(t, t.alto - 1, j);   // Suelo
+    }
 }
 
 void encenderBit(TETRIS &t, int y, int x) {
-    // Operación OR (|) para activar el bit correspondiente
     t.pantalla[y][x / 8] |= (1 << (7 - (x % 8)));
 }
 
 void apagarBit(TETRIS &t, int y, int x) {
-    // Operación AND con NOT (& ~) para desactivar el bit
     t.pantalla[y][x / 8] &= ~(1 << (7 - (x % 8)));
 }
 
 bool leerBit(TETRIS &t, int y, int x) {
-    // Verificación de estado mediante máscara de bits
+    if (x < 0 || x >= t.ancho || y < 0 || y >= t.alto) return true;
     return t.pantalla[y][x / 8] & (1 << (7 - (x % 8)));
 }
 
@@ -79,10 +71,17 @@ void dibujarTetris(TETRIS &t) {
 }
 
 void liberarTetris(TETRIS &t) {
-    // Liberación  de la memoria dinámica
     for (int i = 0; i < t.alto; i++)
         delete[] t.pantalla[i];
     delete[] t.pantalla;
+}
+
+void dibujarPieza(TETRIS &t, PIEZA &p) {
+    for (int i = 0; i < 4; i++) encenderBit(t, p.posY + p.bloques[i].y, p.posX + p.bloques[i].x);
+}
+
+void borrarPieza(TETRIS &t, PIEZA &p) {
+    for (int i = 0; i < 4; i++) apagarBit(t, p.posY + p.bloques[i].y, p.posX + p.bloques[i].x);
 }
 
 bool colision(TETRIS &t, PIEZA &p) {
@@ -94,22 +93,43 @@ bool colision(TETRIS &t, PIEZA &p) {
     return false;
 }
 
+void moverIzquierda(TETRIS &t, PIEZA &p) {
+    borrarPieza(t, p);
+    p.posX--;
+    if (colision(t, p)) p.posX++;
+    dibujarPieza(t, p);
+}
+
+void moverDerecha(TETRIS &t, PIEZA &p) {
+    borrarPieza(t, p);
+    p.posX++;
+    if (colision(t, p)) p.posX--;
+    dibujarPieza(t, p);
+}
+
 void rotarDerecha(TETRIS &t, PIEZA &p) {
     borrarPieza(t, p);
     BLOQUE copia[4];
     for(int i=0; i<4; i++) copia[i] = p.bloques[i];
 
     for (int i = 0; i < 4; i++) {
-        // Rotación de 90 grados: (x, y) -> (-y, x)
         int temp = p.bloques[i].x;
-        p.bloques[i].x = -p.bloques[i].y;
-        p.bloques[i].y = temp;
+        p.bloques[i].x = p.bloques[i].y;
+        p.bloques[i].y = -temp;
     }
 
     if (colision(t, p)) {
         for(int i=0; i<4; i++) p.bloques[i] = copia[i];
     }
     dibujarPieza(t, p);
+}
+
+
+bool filaCompleta(TETRIS &t, int y) {
+    for (int x = 1; x < t.ancho - 1; x++) {
+        if (!leerBit(t, y, x)) return false;
+    }
+    return true;
 }
 
 void eliminarFila(TETRIS &t, int y) {
@@ -125,6 +145,22 @@ void eliminarFila(TETRIS &t, int y) {
 void verificarLineas(TETRIS &t) {
     for (int y = 1; y < t.alto - 1; y++) {
         if (filaCompleta(t, y)) eliminarFila(t, y);
+    }
+}
+
+
+void nuevaPiezaAleatoria(TETRIS &t, PIEZA &p) {
+    int tipo = dist(rng);
+    p.posX = t.ancho / 2;
+    p.posY = 1;
+    switch(tipo) {
+        case 0: p.bloques[0]={-1,0}; p.bloques[1]={0,0}; p.bloques[2]={1,0}; p.bloques[3]={2,0}; break; 
+        case 1: p.bloques[0]={0,0}; p.bloques[1]={1,0}; p.bloques[2]={0,1}; p.bloques[3]={1,1}; break;  
+        case 2: p.bloques[0]={-1,0}; p.bloques[1]={0,0}; p.bloques[2]={1,0}; p.bloques[3]={0,1}; break; 
+        case 3: p.bloques[0]={-1,0}; p.bloques[1]={0,0}; p.bloques[2]={1,0}; p.bloques[3]={1,1}; break; 
+        case 4: p.bloques[0]={-1,1}; p.bloques[1]={-1,0}; p.bloques[2]={0,0}; p.bloques[3]={1,0}; break; 
+        case 5: p.bloques[0]={0,0}; p.bloques[1]={1,0}; p.bloques[2]={-1,1}; p.bloques[3]={0,1}; break;  
+        case 6: p.bloques[0]={-1,0}; p.bloques[1]={0,0}; p.bloques[2]={0,1}; p.bloques[3]={1,1}; break;  
     }
 }
 
