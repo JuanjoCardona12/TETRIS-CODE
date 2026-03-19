@@ -13,6 +13,8 @@ struct PIEZA {
     int posY; 
 };
 
+//añadir pieza.h con estructuras BLOQUE/PIEZA y funciones de movimiento, rotación y generación aleatoria
+
 void dibujarPieza(TETRIS &t, PIEZA &p);
 void borrarPieza(TETRIS &t, PIEZA &p);
 bool colision(TETRIS &t, PIEZA &p);
