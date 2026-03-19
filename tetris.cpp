@@ -36,6 +36,22 @@ void inicializarTetris(TETRIS &t) {
     for (int i = 0; i < t.alto; i++)
         for (int j = 0; j < t.bytesPorFila; j++)
             t.pantalla[i][j] = 0; // Limpieza inicial de bits
+    
+    void crearBordes(TETRIS &t) {
+    for (int i = 0; i < t.alto; i++) {
+        encenderBit(t, i, 0);            // Borde izquierdo
+        encenderBit(t, i, t.ancho - 1);  // Borde derecho
+    }
+    for (int j = 0; j < t.ancho; j++) {
+        encenderBit(t, t.alto - 1, j);   // Suelo del tablero
+    }
+}
+
+void liberarTetris(TETRIS &t) {
+    for (int i = 0; i < t.alto; i++)
+        delete[] t.pantalla[i];
+    delete[] t.pantalla; // Evita fugas de memoria
+}
 }
 
 void encenderBit(TETRIS &t, int y, int x) {
