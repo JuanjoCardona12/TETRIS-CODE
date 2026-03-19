@@ -1,36 +1,60 @@
 #include "tetris.h"
-#include "pieza.h"
 #include <iostream>
-
+#include "pieza.h"
 using namespace std;
 
-int main() {
+int main(){
+
     TETRIS t;
     PIEZA p;
 
     crearTetris(t);
     inicializarTetris(t);
     crearBordes(t);
-    nuevaPiezaAleatoria(t, p);
 
+    nuevaPiezaAleatoria(t,p);
+    dibujarPieza(t,p);
+
+    bool fin = false;
     char tecla;
-    bool finDelJuego = false;
 
-    while (!finDelJuego) {
+    while(!fin){
+
+        system("cls");
+
         dibujarTetris(t);
-        cout << "Accion: [A]Izq [D]Der [S]Bajar [W]Rotar [Q]Salir: ";
-        cin >> tecla;
 
-        switch (tecla) {
-            case 'a': moverIzquierda(t, p); break;
-            case 'd': moverDerecha(t, p); break;
-            case 's': finDelJuego = moverAbajo(t, p); break;
-            case 'w': rotarDerecha(t, p); break;
-            case 'q': finDelJuego = true; break;
+        cout<<"a izquierda.    |    d derecha.    |    s abajo.    |    w rotar a la derecha"<<endl;
+        cin>>tecla;
+
+        switch(tecla){
+
+        case 'a':
+            moverIzquierda(t,p);
+            break;
+
+        case 'd':
+            moverDerecha(t,p);
+            break;
+
+        case 's':
+            fin = moverAbajo(t,p);
+            break;
+
+        case 'w':
+            rotarDerecha(t,p);
+            break;
+
+        
         }
+
     }
 
-    cout << "--- GAME OVER ---" << endl;
-    liberarTetris(t); // Limpieza de memoria dinámica
+    system("cls");
+    dibujarTetris(t);
+    cout<<"GAME OVER"<<endl;
+
+    liberarTetris(t);
+
     return 0;
 }
