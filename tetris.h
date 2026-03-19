@@ -18,7 +18,11 @@ void apagarBit(TETRIS &t,int y,int x);
 bool leerBit(TETRIS &t,int y,int x);
 void crearBordes(TETRIS &t);
 void liberarTetris(TETRIS &t);
+bool filaCompleta(TETRIS &t, int y);
+void eliminarFila(TETRIS &t, int y);
+void verificarLineas(TETRIS &t);
 
+#endif
 #endif
 
 
